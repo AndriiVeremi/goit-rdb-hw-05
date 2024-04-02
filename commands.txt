@@ -1,0 +1,54 @@
+SELECT *, (SELECT customer_id FROM orders WHERE orders.id = od.order_id) AS customer_id
+FROM order_details od;
+
+
+---------------------------------------------------------------------
+
+
+SELECT *
+FROM order_details od
+WHERE od.order_id IN (SELECT id FROM orders WHERE shipper_id=3);
+
+
+---------------------------------------------------------------------
+
+
+SELECT AVG(temp_t.quantity) AS Avg_Quantity
+FROM (SELECT * FROM order_details WHERE quantity > 10) AS temp_t
+GROUP BY(order_id);
+
+
+---------------------------------------------------------------------
+
+
+WITH temp AS (
+SELECT * 
+FROM order_details 
+WHERE quantity > 10
+)
+SELECT AVG(quantity) AS Avg_Quantity
+FROM temp
+GROUP BY(order_id);
+
+
+---------------------------------------------------------------------
+
+
+DROP FUNCTION IF EXISTS CalculateQuantity;
+
+DELIMITER //
+
+CREATE FUNCTION CalculateQuantity(param1 FLOAT, param2 FLOAT)
+RETURNS FLOAT
+DETERMINISTIC 
+NO SQL
+BEGIN
+DECLARE result FLOAT;
+SET result = param1 / param2;
+RETURN result;
+END //
+
+DELIMITER ;
+
+SELECT CalculateQuantity(CAST(quantity AS FLOAT), CAST(product_id AS FLOAT)) AS Calculate
+FROM order_details;
